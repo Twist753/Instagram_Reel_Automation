@@ -1,0 +1,750 @@
+{
+  "name": "Instagram_Reel_Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.together.xyz/v1/images/generations",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "black-forest-labs/FLUX.1-schnell-Free"
+            },
+            {
+              "name": "prompt",
+              "value": "={{ $json.output.prompt }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -720,
+        512
+      ],
+      "id": "78e4d51e-5e2a-43ee-b4d8-dff2560e91e4",
+      "name": "Generate Image",
+      "credentials": "REDACTED"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-1.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -272,
+        496
+      ],
+      "id": "8fe82760-a1c0-4188-90c5-f4c7d5af591a",
+      "name": "Google Gemini",
+      "credentials": "REDACTED"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -448,
+        256
+      ],
+      "id": "75509ed9-fcb1-4495-bbaf-705f1a7c0da3",
+      "name": "Telegram Trigger",
+      "webhookId": "REDACTED",
+      "credentials": "REDACTED"
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "v22.0",
+        "node": "17841475895608533",
+        "edge": "media",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "media_type",
+                "value": "REELS"
+              },
+              {
+                "name": "caption",
+                "value": "={{ $json.caption }}"
+              },
+              {
+                "name": "video_url",
+                "value": "={{ $json.video_url }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        416,
+        832
+      ],
+      "id": "964547d7-1f21-4714-8522-8e5ca902226e",
+      "name": "iosis.ai container",
+      "credentials": "REDACTED"
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "v22.0",
+        "node": "17841475895608533",
+        "edge": "media_publish",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "creation_id",
+                "value": "={{ $json.id }}"
+              },
+              {
+                "name": "caption",
+                "value": "={{ $('IG param').item.json.caption }}"
+              },
+              {
+                "name": "video_url",
+                "value": "={{ $('IG param').item.json.video_url }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        928,
+        832
+      ],
+      "id": "751df759-10b0-4fb8-bc19-53ea8be2e757",
+      "name": "Post to IG",
+      "credentials": "REDACTED"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d9b342ff-f9b7-496c-934b-24ae8ba7c76f",
+              "name": "ACCESS_TOKEN",
+              "value": "REDACTED",
+              "type": "string"
+            },
+            {
+              "id": "d768beb8-2313-4c15-a5d7-50ec49716eb4",
+              "name": "PROJECT_ID",
+              "value": "n8n-project-465106",
+              "type": "string"
+            },
+            {
+              "id": "c4e5db68-0000-4f8f-9be7-519306f11442",
+              "name": "LOCATION_ID",
+              "value": "us-central1",
+              "type": "string"
+            },
+            {
+              "id": "2eeede16-3c79-48f0-b547-56a7047602b5",
+              "name": "API_ENDPOINT",
+              "value": "us-central1-aiplatform.googleapis.com",
+              "type": "string"
+            },
+            {
+              "id": "efec5efe-19ed-40aa-a09f-a621ca2d3f37",
+              "name": "MODEL_ID",
+              "value": "veo-3.0-generate-preview",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        192,
+        256
+      ],
+      "id": "16cb5601-4dfd-42da-9246-5d44927cd51f",
+      "name": "Veo Param"
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        576,
+        256
+      ],
+      "id": "29e7b721-56f5-4dc6-8ab5-14dee1d0ae42",
+      "name": "Wait",
+      "webhookId": "REDACTED"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "response.videos[0].bytesBase64Encoded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        192,
+        544
+      ],
+      "id": "c814d254-b6eb-4813-9558-725a631ea2a2",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://{{ $('Veo Param').item.json.API_ENDPOINT }}/v1/projects/{{ $('Veo Param').item.json.PROJECT_ID }}/locations/{{ $('Veo Param').item.json.LOCATION_ID }}/publishers/google/models/{{ $('Veo Param').item.json.MODEL_ID }}:fetchPredictOperation",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "={\n  \"Content-Type\": \"application/json\",\n  \"Authorization\": \"Bearer {{ $('Veo Param').item.json.ACCESS_TOKEN }}\"\n}\n",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"operationName\": \"{{ $json.name }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        784,
+        256
+      ],
+      "id": "8276119d-dec6-48e3-99ce-e9ba050a7f4d",
+      "name": "Veo3 fetch"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://{{ $json.API_ENDPOINT }}/v1/projects/{{ $json.PROJECT_ID }}/locations/{{ $json.LOCATION_ID }}/publishers/google/models/{{ $json.MODEL_ID }}:predictLongRunning",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "={\n  \"Content-Type\": \"application/json\",\n  \"Authorization\": \"Bearer {{ $json.ACCESS_TOKEN }}\"\n}\n",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"instances\": [\n    {\n      \"prompt\": \"{{ $('Prompt Master').item.json.output.prompt }}\"\n    }\n  ],\n  \"parameters\": {\n    \"aspectRatio\": \"16:9\",\n    \"sampleCount\": 1,\n    \"durationSeconds\": \"5\",\n    \"personGeneration\": \"allow_all\",\n    \"addWatermark\": true,\n    \"includeRaiReason\": true,\n    \"generateAudio\": true,\n    \"resolution\": \"720p\"\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        384,
+        256
+      ],
+      "id": "aa30a123-af5c-435b-8356-d3df466bcb93",
+      "name": "Veo3 generate "
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "94f33003-87e8-4580-9745-286f5aff4c41",
+              "name": "video_url",
+              "value": "={{ $json.drive_link }}",
+              "type": "string"
+            },
+            {
+              "id": "bc9e6c23-5d85-4a4d-b367-0f1eb83d631d",
+              "name": "caption",
+              "value": "={{ $json.caption }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        192,
+        832
+      ],
+      "id": "1bfeaac1-b972-4cda-af97-fc6cf5daee02",
+      "name": "IG param"
+    },
+    {
+      "parameters": {
+        "name": "={{ $('Prompt Master').item.json.output.vid_name }}.mp4",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1ZHP-f1j8MOnnGvmpF39igr48UpuS1Mut",
+          "mode": "list",
+          "cachedResultName": "Reels",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1ZHP-f1j8MOnnGvmpF39igr48UpuS1Mut"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        432,
+        544
+      ],
+      "id": "14cf27da-9efc-4672-9b57-d7e7e6e01e24",
+      "name": "Upload file",
+      "credentials": "REDACTED"
+    },
+    {
+      "parameters": {
+        "description": "The user submitted an idea for a surreal or visually striking Instagram reel. I need to determine whether this idea should be treated as realistic, surreal, or comedic before crafting a prompt for the video generation agent. Realism should be prioritized unless the idea clearly suggests a fantasy or humorous tone. Consider lighting, mood, setting, and output format when designing the prompt structure."
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        496
+      ],
+      "id": "e699f67a-9989-40d7-acec-73c5f5b1f011",
+      "name": "Think"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"prompt\": \"<Descriptive prompt for the video generator based on the idea>\",\n  \"caption\": \"<Instagram-style caption related to the video. Can be humorous, dark, or formal, but no emojis>\",\n  \"vid_name\": \"<Short simple title to video>\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -16,
+        496
+      ],
+      "id": "51e9d8c2-b2db-4e5e-be94-b12dcf15054f",
+      "name": "Output Parser"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=## ROLE ##\nYou are an expert prompt engineer helping generate ideas for short Instagram reels based on user-submitted ideas. Your job is to craft a high-quality prompt for a video generation model (like Veo3) that can create a short, Instagram-style reel video based on the user's idea. Prioritize realism and cinematics, unless the idea explicitly demands surreal or animated execution.\n\nIdea provided by user is : {{ $json.message.text }}\n\n## Instructions ##\nCreate a highly detailed video prompt, specifying:\n\n1. What is seen visually\n\n2. Mood and tone\n\n3. Camera angles and motion\n\n4. Lighting and realism level (photorealistic, macro, etc.)\n\n5 .Assume this is for a cinematic, Instagram-style short video.\n\n6. The tone should favor realistic, slow-motion, focused, cinematic storytelling, even for surreal ideas.\n\n7. The \"caption\" should match the video\u2019s tone \u2014 clever, dark, mildly funny, or thought-provoking. No emojis.\n\n8. The \"vid_name\" should be a short title \u2014 3 to 6 words max.\n\n- ONLY PROVIDE THE OUTPUT AS A VALID JSON object. Inside the \"prompt\" value, escape all internal double quotes using \\\\\\\". Do not include markdown, explanation, or extra text.\n\n## OUPUT FORM ##\nONLY PROVIDE THE OUTPUT IN FOLLOWING JSON FORMAT. no preamble. NOTHING ELSE:\n\n{\n\"prompt\" : \"Enter prompt here\",\n\"caption\" : \"Enter caption here\",\n\"vid_name\" : \"Name for video\"\n}\n\n## EXAMPLE ##\n1) idea : Applying surreal things like lava or a bicycle as jam on toast\n\nYour output:\n{\n  \"prompt\": \"A hyper-realistic video of someone spreading surreal 'jam' on toast: first, small bicycles gets squeezed from a jar and spreads smoothly like jelly across the bread. Then, lava is spread on bread with bubbles slightly as it's spread like marmalade. Shot with cinematic close-ups, high frame rate slow motion, and warm morning lighting on a wooden kitchen counter and bread getting burned till black.\",\n  \"caption\": \"When breakfast hits different dimensions.\",\n  \"vid_name\": \"Surreal jam on bread\"\n}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        -224,
+        256
+      ],
+      "id": "be79be95-592d-4e23-b0de-347ffd2ad542",
+      "name": "Prompt Master"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        704,
+        544
+      ],
+      "id": "a8dd1920-ef5d-4f92-b174-0e82b6a8ee05",
+      "name": "Wait1",
+      "webhookId": "REDACTED"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1JvP1xBUNGVvI29Ii6ad9oEFopkcF06pVpUItE9_Ei_4",
+          "mode": "list",
+          "cachedResultName": "Instagram_Reels_Automation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JvP1xBUNGVvI29Ii6ad9oEFopkcF06pVpUItE9_Ei_4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1JvP1xBUNGVvI29Ii6ad9oEFopkcF06pVpUItE9_Ei_4/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "chat_id": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+            "idea": "={{ $('Telegram Trigger').item.json.message.text }}",
+            "prompt": "={{ $('Prompt Master').item.json.output.prompt }}",
+            "caption": "={{ $('Prompt Master').item.json.output.caption }}",
+            "video_name": "={{ $('Prompt Master').item.json.output.vid_name }}",
+            "drive_link": "={{ $('Upload file').item.json.webContentLink }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "chat_id",
+              "displayName": "chat_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "idea",
+              "displayName": "idea",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "prompt",
+              "displayName": "prompt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "caption",
+              "displayName": "caption",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "video_name",
+              "displayName": "video_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "drive_link",
+              "displayName": "drive_link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        928,
+        544
+      ],
+      "id": "488621a5-aa54-4cf0-87e3-06757d519c71",
+      "name": "Add to Sheets",
+      "credentials": "REDACTED"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        656,
+        832
+      ],
+      "id": "67369ca9-6e58-43cb-a13b-343378f0a5b5",
+      "name": "Wait2",
+      "webhookId": "REDACTED"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0b25ef89-df80-443a-94f5-80a73d21861b",
+              "leftValue": "={{ $json.error.code }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        944,
+        256
+      ],
+      "id": "a85227c9-0887-4a27-9fd8-69f632094941",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "chatId": "REDACTED",
+        "text": "=Error:\n{{ $json.error.message }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1200,
+        80
+      ],
+      "id": "c2de3def-981b-411a-a508-9408f44798ac",
+      "name": "Send a text message",
+      "webhookId": "REDACTED",
+      "credentials": "REDACTED"
+    }
+  ],
+  "connections": {
+    "Generate Image": {
+      "main": [
+        []
+      ]
+    },
+    "Google Gemini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Prompt Master",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Prompt Master",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "iosis.ai container": {
+      "main": [
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Veo Param": {
+      "main": [
+        [
+          {
+            "node": "Veo3 generate ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Veo3 fetch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Veo3 fetch": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Veo3 generate ": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IG param": {
+      "main": [
+        [
+          {
+            "node": "iosis.ai container",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "Prompt Master",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Prompt Master",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prompt Master": {
+      "main": [
+        [
+          {
+            "node": "Veo Param",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Add to Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add to Sheets": {
+      "main": [
+        [
+          {
+            "node": "IG param",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Post to IG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "29c987bd-06bc-415f-8cad-4ea957059ff6",
+  "id": "pxdKbGyJUs328JzJ",
+  "tags": []
+}
